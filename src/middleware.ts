@@ -15,7 +15,15 @@ export async function middleware(req: NextRequest) {
     const pathname = req.nextUrl.pathname;
     
     // Public paths that should always be accessible without authentication
-    const publicPaths = ['/', '/auth/callback', '/api'];
+    // Include all auth-related paths to prevent interference with the OAuth flow
+    const publicPaths = [
+      '/', 
+      '/auth/callback', 
+      '/api',
+      '/auth/v1',
+      '/supabase',
+      '/rest/v1'
+    ];
     
     // Check if the current path is public
     if (publicPaths.some(path => pathname === path || pathname.startsWith(path + '/'))) {

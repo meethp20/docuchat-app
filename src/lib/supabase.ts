@@ -1,20 +1,43 @@
 import { createClient } from "@supabase/supabase-js";
 
-// Default to empty strings to prevent build errors, but these will be replaced with actual values at runtime
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+/**
+ * Create a Supabase client with proper handling of environment variables
+ * 
+ * This implementation ensures we don't use placeholder values in production
+ * while still allowing the build process to complete without errors
+ */
 
-// Only create the client if we have the required values
-// This prevents errors during static build time
-let supabaseClient: ReturnType<typeof createClient> | null = null;
+// Function to create a client that can be used safely in both server and client contexts
+const createSafeClient = () => {
+  // In browser context, we can check if window is defined
+  const isBrowser = typeof window !== 'undefined';
+  
+  // Get environment variables
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+  
+  // Only create a real client if we have valid credentials
+  if (supabaseUrl && supabaseAnonKey) {
+    return createClient(supabaseUrl, supabaseAnonKey);
+  }
+  
+  // For server-side rendering without env vars, create a non-functional client
+  // This will be replaced with the real client on the client side
+  if (!isBrowser) {
+    // Return a mock client that doesn't make actual API calls during build
+    return {
+      auth: {
+        getSession: async () => ({ data: { session: null }, error: null }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } }, error: null }),
+        signOut: async () => ({ error: null })
+      }
+    } as unknown as ReturnType<typeof createClient>;
+  }
+  
+  // In browser context, if we still don't have credentials, log an error
+  console.error('Supabase URL and Anon Key are required');
+  throw new Error('Supabase credentials missing');
+};
 
-if (supabaseUrl && supabaseAnonKey) {
-  supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
-}
-
-// Export the client, but with a safety check during initialization
-export const supabase = supabaseClient || createClient(
-  // Use dummy values that will be replaced at runtime with actual env vars
-  'https://placeholder-url.supabase.co',
-  'placeholder-key'
-);
+// Export the client
+export const supabase = createSafeClient();
