@@ -1,4 +1,4 @@
-// src/contexts/AuthContext.tsx
+"use client";
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -26,8 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Check for existing session on page load
     const initializeAuth = async () => {
       try {
-        const { data, error } = await supabase.auth.getSession();
-        
+        const { data } = await supabase.auth.getSession();
         if (data?.session) {
           setSession(data.session);
           setUser(data.session.user);
@@ -38,13 +37,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setLoading(false);
       }
     };
-    
+
     initializeAuth();
-    
+
     // Listen for auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);

@@ -12,13 +12,11 @@ export async function middleware(req: NextRequest) {
   } = await supabase.auth.getSession();
 
   // If there's no session and the request is not for the login page
-  if (!session && !req.nextUrl.pathname.startsWith('/login')) {
-    // Redirect to login page
+  if (!session && req.nextUrl.pathname !== '/') {
     const redirectUrl = req.nextUrl.clone();
-    redirectUrl.pathname = '/login';
+    redirectUrl.pathname = '/';
     return NextResponse.redirect(redirectUrl);
   }
-
   return res;
 }
 

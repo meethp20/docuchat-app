@@ -2,7 +2,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/lib/supabase";
 
-export default function AuthComponent(){
+export default function AuthComponent() {
     return (
         <div className="auth-container">
             <h1 className="text-3xl font-bold mb-4">Welcome to DocuChat</h1>
@@ -21,32 +21,27 @@ export default function AuthComponent(){
                     },
                 }}
                 theme="dark"
-                providers={["google"]}
+                providers={["google", "github"]}
+                redirectTo={`${window.location.origin}/auth/callback`}
                 socialLayout="horizontal"
             />
-            <Auth 
-             supabaseClient={supabase}
-             appearance={{theme: ThemeSupa}}
-             providers={['github', 'google']}
-             redirectTo={`${window.location.origin}/auth/callback`}
-             socialLayout="vertical"
-             />
-             <style jsx>{
-               ` auth-container{
-                max-width:400px
-                margin:0 auto 
-                padding:40px 20px
-               }
-                        h1 {
-          margin-bottom: 16px;
-        }
-        
-        p {
-          margin-bottom: 24px;
-          color: #666;
-        }
-`
-              }</style>
+
+            <style jsx>{`
+                .auth-container {
+                    max-width: 400px;
+                    margin: 0 auto;
+                    padding: 40px 20px;
+                }
+
+                h1 {
+                    margin-bottom: 16px;
+                }
+
+                p {
+                    margin-bottom: 24px;
+                    color: #666;
+                }
+            `}</style>
         </div>
-    )
+    );
 }
