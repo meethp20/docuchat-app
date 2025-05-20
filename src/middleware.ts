@@ -1,72 +1,38 @@
 // src/middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 
+// A simplified middleware that only checks for auth cookie presence
+// This avoids Supabase initialization issues in the middleware
 export async function middleware(req: NextRequest) {
-  try {
-    const res = NextResponse.next();
-    
-    // Create a Supabase client using the modern @supabase/ssr package
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-      {
-        cookies: {
-          get(name) {
-            return req.cookies.get(name)?.value;
-          },
-          set(name, value, options) {
-            // If the cookie is updated, update the cookies for the request and response
-            req.cookies.set({
-              name,
-              value,
-              ...options,
-            });
-            res.cookies.set({
-              name,
-              value,
-              ...options,
-            });
-          },
-          remove(name, options) {
-            req.cookies.set({
-              name,
-              value: '',
-              ...options,
-            });
-            res.cookies.set({
-              name,
-              value: '',
-              ...options,
-            });
-          },
-        },
-      }
-    );
+  // Get the response early
+  const res = NextResponse.next();
 
-    // Skip auth check if environment variables aren't available
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      console.warn('Supabase credentials missing in middleware');
+  try {
+    // Check if we're on the home page - always allow access
+    if (req.nextUrl.pathname === '/') {
       return res;
     }
-    
-    const { data } = await supabase.auth.getSession();
-    const session = data?.session;
 
-    // If there's no session and the request is not for the login page
-    if (!session && req.nextUrl.pathname !== '/') {
+    // Check for auth cookie presence - this is a simple way to check if user is logged in
+    // without initializing Supabase in middleware
+    const hasAuthCookie = req.cookies.has('sb-access-token') || 
+                         req.cookies.has('sb-refresh-token') ||
+                         req.cookies.has('supabase-auth-token');
+
+    // If no auth cookie and not on home page, redirect to home
+    if (!hasAuthCookie) {
       const redirectUrl = req.nextUrl.clone();
       redirectUrl.pathname = '/';
       return NextResponse.redirect(redirectUrl);
     }
-    
+
+    // User has auth cookie, allow access
     return res;
   } catch (error) {
-    // Log the error but don't block the request
     console.error('Middleware error:', error);
-    return NextResponse.next();
+    // Always return a response even if there's an error
+    return res;
   }
 }
 
