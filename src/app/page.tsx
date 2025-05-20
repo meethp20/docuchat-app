@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+
 import AuthComponent from '../components/Auth';
 import Chat from '../components/Chat';
 import { useAuth } from '../contexts/AuthContext';

@@ -6,9 +6,9 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export async function POST(req: NextRequest) {
     // Try to get session but continue if it fails
-    let session;
+    let _session;
     try {
-        session = await getSession();
+        _session = await getSession();
     } catch (error) {
         console.warn("Could not get session for PDF extraction, continuing without authentication", error);
     }

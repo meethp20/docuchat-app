@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   let chatId: string | null = null;
   let pdfText: string | null = null;
   let supabaseInstance;
-  let userId: string = session?.user?.id || 'anonymous-user';
+  const userId: string = session?.user?.id || 'anonymous-user';
 
   try {
     // Parse the request body

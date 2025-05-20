@@ -12,7 +12,7 @@ export default function Chat(){
     const [chatId, setChatId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const messageEndRef = useRef<HTMLDivElement>(null);
-    const { user, signOut } = useAuth();
+    const { signOut } = useAuth();
 
 
     useEffect(()=>{
@@ -68,8 +68,8 @@ const handleSubmit = async(e:React.FormEvent)=>{
         return;
     }
     setPdfText(text);
-    // Truncate the PDF text for the success message to show a preview
-    const previewText = text.length > 100 ? `${text.substring(0, 100)}...` : text;
+    // Truncate the PDF text for the success message to show a preview (not used currently)
+    // const previewText = text.length > 100 ? `${text.substring(0, 100)}...` : text;
     setMessages(prev => [...prev, {
         role: 'system',
         content: `PDF uploaded and processed successfully! (${text.length} characters extracted)`
