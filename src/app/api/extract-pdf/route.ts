@@ -1,6 +1,8 @@
+
 import { NextRequest,NextResponse } from "next/server";
 import { getSession } from "@/lib/getSession";
-import * as pdfParse from "pdf-parse";
+
+import pdfParse from "pdf-parse";
 export async function POST(req:NextRequest){
     const session = await getSession()
     if(!session){

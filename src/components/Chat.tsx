@@ -81,7 +81,7 @@ const handleSubmit = async(e:React.FormEvent)=>{
           </div>
         ))}
         {loading && <div className="message assistant loading">Thinking...</div>}
-        <div ref={messagesEndRef} />
+       <div ref={messageEndRef} />
       </div>
       
       <form onSubmit={handleSubmit} className="input-form">
